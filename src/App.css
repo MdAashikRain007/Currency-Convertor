@@ -1,0 +1,153 @@
+.app {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem 3rem;
+}
+
+.converter-card {
+  width: min(560px, 100%);
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 2.75rem 2.5rem;
+  box-shadow: 0 25px 60px rgba(15, 23, 42, 0.12);
+}
+
+.converter-header {
+  text-align: left;
+  margin-bottom: 2rem;
+}
+
+.pill {
+  display: inline-flex;
+  padding: 0.25rem 0.8rem;
+  border-radius: 999px;
+  background: rgba(79, 70, 229, 0.1);
+  color: #4f46e5;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  margin-bottom: 0.75rem;
+}
+
+.converter-header h1 {
+  margin: 0 0 0.5rem;
+  font-size: 2rem;
+  color: #0f172a;
+}
+
+.subheading {
+  margin: 0;
+  color: #475569;
+  font-size: 1rem;
+}
+
+.converter-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.converter-form label {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.converter-form input,
+.converter-form select {
+  padding: 0.9rem 1rem;
+  font-size: 1rem;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  background-color: #f8fafc;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.converter-form input:focus,
+.converter-form select:focus {
+  border-color: #4f46e5;
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+}
+
+.converter-form button {
+  margin-top: 0.5rem;
+  padding: 0.95rem 1.2rem;
+  border: none;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+}
+
+.converter-form button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.converter-form button:not(:disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 15px 30px rgba(79, 70, 229, 0.25);
+}
+
+.input-error {
+  margin: 0;
+  color: #dc2626;
+  font-size: 0.9rem;
+}
+
+.status-message {
+  margin-top: 1rem;
+  color: #475569;
+  font-size: 0.95rem;
+}
+
+.status-message.error {
+  color: #dc2626;
+}
+
+.result-card {
+  margin-top: 2rem;
+  padding: 1.75rem;
+  border-radius: 20px;
+  background: #0f172a;
+  color: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.result-card .label {
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.8rem;
+  color: rgba(248, 250, 252, 0.7);
+  margin: 0;
+}
+
+.result-card .value {
+  margin: 0;
+  font-size: clamp(1.8rem, 4vw, 2.4rem);
+  font-weight: 700;
+}
+
+.result-card .rate {
+  margin: 0.5rem 0 0;
+  color: rgba(248, 250, 252, 0.85);
+}
+
+.result-card .updated {
+  margin: 0;
+  font-size: 0.85rem;
+  color: rgba(248, 250, 252, 0.7);
+}
+
+@media (max-width: 600px) {
+  .converter-card {
+    padding: 2rem 1.5rem;
+  }
+}
