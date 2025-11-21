@@ -21,7 +21,7 @@ function App() {
         const currencyRates = data.usd;
         setRates(currencyRates);
 
-        const first = Object.keys(currencyRates)[142];
+        const first = Object.keys(currencyRates)[143];
         setSelectedCurrency(first);
 
         setLoading(false);
