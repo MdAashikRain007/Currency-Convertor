@@ -1,106 +1,50 @@
-import { useEffect, useMemo, useState } from 'react'
-import './App.css'
+import { useEffect, useState } from "react";
+import "./App.css";
 
 const API_URL =
-  'https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json'
+  "https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json";
 
 function App() {
-  const [amount, setAmount] = useState('1')
-  const [rates, setRates] = useState({})
-  const [selectedCurrency, setSelectedCurrency] = useState('')
-  const [convertedAmount, setConvertedAmount] = useState(null)
-  const [lastUpdated, setLastUpdated] = useState('')
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
-  const [inputError, setInputError] = useState('')
+  const [amount, setAmount] = useState("1");
+  const [rates, setRates] = useState({});
+  const [selectedCurrency, setSelectedCurrency] = useState("");
+  const [convertedAmount, setConvertedAmount] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    const controller = new AbortController()
-
-    async function fetchRates() {
-      setLoading(true)
-      setError('')
-
+    async function loadRates() {
       try {
-        const response = await fetch(API_URL, { signal: controller.signal })
+        const res = await fetch(API_URL);
+        const data = await res.json();
 
-        if (!response.ok) {
-          throw new Error('Failed to fetch exchange rates')
-        }
+        const currencyRates = data.usd;
+        setRates(currencyRates);
 
-        const data = await response.json()
-        const fetchedRates = data?.usd ?? {}
-        const [firstCurrency] = Object.keys(fetchedRates)
+        const first = Object.keys(currencyRates)[142];
+        setSelectedCurrency(first);
 
-        setRates(fetchedRates)
-        setLastUpdated(data?.date ?? '')
-        setSelectedCurrency((prev) => prev || firstCurrency || '')
-      } catch (fetchError) {
-        if (fetchError.name === 'AbortError') {
-          return
-        }
-        setError('Unable to load exchange rates. Please try again shortly.')
-      } finally {
-        setLoading(false)
+        setLoading(false);
+      } catch {
+        setError("Failed to load currency rates");
+        setLoading(false);
       }
     }
 
-    fetchRates()
+    loadRates();
+  }, []);
 
-    return () => controller.abort()
-  }, [])
+  function convertCurrency(e) {
+    e.preventDefault();
 
-  const currencyOptions = useMemo(
-    () => Object.keys(rates).sort((a, b) => a.localeCompare(b)),
-    [rates],
-  )
-
-  const formattedDate = useMemo(() => {
-    if (!lastUpdated) return ''
-    const date = new Date(lastUpdated)
-
-    if (Number.isNaN(date.getTime())) {
-      return lastUpdated
+    if (!amount || amount <= 0) {
+      setConvertedAmount(null);
+      return;
     }
 
-    return new Intl.DateTimeFormat(undefined, {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    }).format(date)
-  }, [lastUpdated])
-
-  const handleConvert = (event) => {
-    event.preventDefault()
-
-    if (!selectedCurrency) {
-      return
-    }
-
-    const numericAmount = Number(amount)
-
-    if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
-      setConvertedAmount(null)
-      setInputError('Enter an amount greater than 0.')
-      return
-    }
-
-    setInputError('')
-    const rate = rates[selectedCurrency]
-
-    if (!rate) {
-      setConvertedAmount(null)
-      return
-    }
-
-    setConvertedAmount(numericAmount * rate)
+    const rate = rates[selectedCurrency];
+    setConvertedAmount(amount * rate);
   }
-
-  const formatNumber = (value) =>
-    new Intl.NumberFormat(undefined, {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 4,
-    }).format(value)
 
   return (
     <main className="app">
@@ -109,70 +53,57 @@ function App() {
           <p className="pill">Live FX Rates</p>
           <h1>USD Currency Converter</h1>
           <p className="subheading">
-            Convert US Dollars into over a hundred global currencies using live
-            rates from the open-source Currency API.
+            Convert US Dollars using live exchange rates from an open API.
           </p>
         </header>
 
-        <form className="converter-form" onSubmit={handleConvert}>
-          <label htmlFor="amount">Amount in USD</label>
-          <input
-            id="amount"
-            type="number"
-            min="0"
-            step="0.01"
-            placeholder="Enter amount"
-            value={amount}
-            onChange={(event) => setAmount(event.target.value)}
-            disabled={loading}
-          />
-
-          <label htmlFor="currency">Convert to</label>
-          <select
-            id="currency"
-            value={selectedCurrency}
-            onChange={(event) => setSelectedCurrency(event.target.value)}
-            disabled={loading || currencyOptions.length === 0}
-          >
-            {currencyOptions.map((code) => (
-              <option key={code} value={code}>
-                {code.toUpperCase()}
-              </option>
-            ))}
-          </select>
-
-          {inputError && <p className="input-error">{inputError}</p>}
-
-          <button type="submit" disabled={loading || !selectedCurrency}>
-            {loading ? 'Loading rates...' : 'Convert'}
-          </button>
-        </form>
-
+        {loading && <p className="status-message">Fetching latest rates…</p>}
         {error && <p className="status-message error">{error}</p>}
-        {!error && loading && (
-          <p className="status-message">Fetching the latest exchange rates…</p>
-        )}
 
-        {convertedAmount !== null && !error && (
-          <div className="result-card">
-            <p className="label">Converted amount</p>
-            <p className="value">
-              {formatNumber(convertedAmount)} {selectedCurrency.toUpperCase()}
-            </p>
-            {selectedCurrency && rates[selectedCurrency] && (
-              <p className="rate">
-                1 USD = {formatNumber(rates[selectedCurrency])}{' '}
-                {selectedCurrency.toUpperCase()}
-              </p>
+        {!loading && !error && (
+          <>
+            <form className="converter-form" onSubmit={convertCurrency}>
+              <label>Amount in USD</label>
+              <input
+                type="number"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                min="0"
+              />
+
+              <label>Convert To</label>
+              <select
+                value={selectedCurrency}
+                onChange={(e) => setSelectedCurrency(e.target.value)}
+              >
+                {Object.keys(rates).map((code) => (
+                  <option key={code} value={code}>
+                    {code.toUpperCase()}
+                  </option>
+                ))}
+              </select>
+
+              <button type="submit">Convert</button>
+            </form>
+
+            {convertedAmount !== null && (
+              <div className="result-card">
+                <p className="label">Converted amount</p>
+                <p className="value">
+                  {convertedAmount.toFixed(2)} {selectedCurrency.toUpperCase()}
+                </p>
+
+                <p className="rate">
+                  1 USD = {rates[selectedCurrency].toFixed(4)}{" "}
+                  {selectedCurrency.toUpperCase()}
+                </p>
+              </div>
             )}
-            {formattedDate && (
-              <p className="updated">Rates updated on {formattedDate}</p>
-            )}
-          </div>
+          </>
         )}
       </section>
     </main>
-  )
+  );
 }
 
-export default App
+export default App;
